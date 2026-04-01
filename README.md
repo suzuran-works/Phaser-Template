@@ -45,6 +45,26 @@ npm run build
 npm run preview
 ```
 
+## GitHub Pages へのデプロイ
+
+このリポジトリには、GitHub Actions で `dist/` を GitHub Pages へデプロイする設定が入っています。
+
+### 初回設定
+
+1. GitHub のリポジトリで `Settings > Pages` を開く
+2. `Build and deployment` の `Source` を `GitHub Actions` に変更する
+
+### デプロイ方法
+
+- `main` ブランチへ push すると自動でデプロイされます
+- `v1.0.0` のようなタグを push してもデプロイされます
+- `Actions` タブから `Deploy static content to Pages` を手動実行することもできます
+
+### 公開 URL
+
+公開先は `https://<GitHubユーザー名>.github.io/<リポジトリ名>/` です。  
+このテンプレートをそのまま `Phaser-Template` リポジトリで使う場合は、`https://MOCHIZUKI-Jun.github.io/Phaser-Template/` になります。
+
 ## ページ構成
 
 ### `/`
