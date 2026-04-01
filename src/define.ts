@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 
+export const GAME_BACKGROUND_COLOR = '#123524';
+
 export const SCREEN_SIZE = {
   width: 1080,
   height: 1080,
@@ -15,7 +17,7 @@ export const isMobile = /iPhone|Android/i.test(navigator.userAgent);
 export const createConfig = (scenes: Phaser.Types.Scenes.SceneType[]): Phaser.Types.Core.GameConfig => ({
   type: Phaser.AUTO,
   parent: 'game-root',
-  backgroundColor: '#111827',
+  backgroundColor: GAME_BACKGROUND_COLOR,
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -28,4 +30,3 @@ export const createConfig = (scenes: Phaser.Types.Scenes.SceneType[]): Phaser.Ty
     min: 30,
   },
 });
-

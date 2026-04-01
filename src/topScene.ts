@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { createConfig, SCREEN_SIZE } from './define.ts';
+import { createConfig, GAME_BACKGROUND_COLOR, SCREEN_SIZE } from './define.ts';
 
 const LOGO_TEXTURE_KEY = 'top-logo';
 
@@ -16,10 +16,10 @@ class TopScene extends Phaser.Scene {
 
   public create(): void {
     const centerX = SCREEN_SIZE.width / 2;
-    const panel = this.add.rectangle(centerX, SCREEN_SIZE.height / 2, 900, 920, 0x0f172a, 0.82)
-      .setStrokeStyle(3, 0x334155);
+    const panel = this.add.rectangle(centerX, SCREEN_SIZE.height / 2, 900, 920, 0x0b221b, 0.9)
+      .setStrokeStyle(3, 0x3f6b5b);
 
-    this.cameras.main.setBackgroundColor('#111827');
+    this.cameras.main.setBackgroundColor(GAME_BACKGROUND_COLOR);
     this.createLogo(centerX, 220);
 
     this.add.text(centerX, 360, 'Phaser Template', {
