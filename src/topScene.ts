@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
-import { createConfig, GAME_BACKGROUND_COLOR, SCREEN_SIZE } from './define.ts';
+import { createConfig, SCREEN_SIZE } from './define.ts';
 
 const LOGO_TEXTURE_KEY = 'top-logo';
+const TOP_BACKGROUND_COLOR = '#0A0A0A';
 
 class TopScene extends Phaser.Scene {
   public static readonly key = 'TopScene';
@@ -16,39 +17,10 @@ class TopScene extends Phaser.Scene {
 
   public create(): void {
     const centerX = SCREEN_SIZE.width / 2;
-    const panel = this.add.rectangle(centerX, SCREEN_SIZE.height / 2, 900, 920, 0x0b221b, 0.9)
-      .setStrokeStyle(3, 0x3f6b5b);
-
-    this.cameras.main.setBackgroundColor(GAME_BACKGROUND_COLOR);
-    this.createLogo(centerX, 220);
-
-    this.add.text(centerX, 360, 'Phaser Template', {
-      fontSize: '64px',
-      color: '#f9fafb',
-      fontStyle: 'bold',
-    }).setOrigin(0.5);
-
-    this.add.text(centerX, 430, 'SimpleChatCharacter を参考にした初期構成です', {
-      fontSize: '28px',
-      color: '#cbd5e1',
-      align: 'center',
-    }).setOrigin(0.5);
-
-    this.add.text(centerX, 510, '複数ページの UI 試作やシーン分割をすぐに始められます', {
-      fontSize: '24px',
-      color: '#94a3b8',
-      align: 'center',
-    }).setOrigin(0.5);
-
-    this.createLinkButton(centerX, 650, 'page00 を開く', './page00/');
-    this.createLinkButton(centerX, 780, 'page01 を開く', './page01/');
-
-    this.add.text(centerX, panel.y + 345, 'src/ 以下にシーンや共通部品を追加して育てていく前提のテンプレートです', {
-      fontSize: '24px',
-      color: '#94a3b8',
-      wordWrap: { width: 760 },
-      align: 'center',
-    }).setOrigin(0.5);
+    this.cameras.main.setBackgroundColor(TOP_BACKGROUND_COLOR);
+    this.createLogo(centerX, 380);
+    this.createLinkButton(centerX, 780, 'page00 を開く', './page00/');
+    this.createLinkButton(centerX, 900, 'page01 を開く', './page01/');
   }
 
   /**
@@ -56,8 +28,8 @@ class TopScene extends Phaser.Scene {
    */
   private createLogo(x: number, y: number): void {
     const logo = this.add.image(x, y, LOGO_TEXTURE_KEY).setOrigin(0.5);
-    const maxWidth = 520;
-    const maxHeight = 180;
+    const maxWidth = 760;
+    const maxHeight = 320;
     const scale = Math.min(maxWidth / logo.width, maxHeight / logo.height);
 
     logo.setScale(scale);
