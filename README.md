@@ -62,8 +62,9 @@ npm run preview
 
 ### 公開 URL
 
-公開先は `https://<GitHubユーザー名>.github.io/<リポジトリ名>/` です。  
-このテンプレートをそのまま `Phaser-Template` リポジトリで使う場合は、`https://MOCHIZUKI-Jun.github.io/Phaser-Template/` になります。
+- トップページ: `https://suzuran-works.github.io/Phaser-Template/`
+- page00: `https://suzuran-works.github.io/Phaser-Template/page00/`
+- page01: `https://suzuran-works.github.io/Phaser-Template/page01/`
 
 ## ページ構成
 
