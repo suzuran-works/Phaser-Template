@@ -37,61 +37,61 @@ class TopScene extends Phaser.Scene {
    * Codex: 現在の表示サイズに合わせてトップ画面全体を再配置する。
    */
   private renderLayout(width: number, height: number): void {
-    const scale = Math.min(width / 1080, height / 1080);
     const centerX = width / 2;
+    const centerY = height / 2;
+    const navY = height - Math.max(72, height * 0.08);
 
     this.children.removeAll(true);
-    this.createLogo(centerX, 380 * scale, scale);
-    this.createLinkButton(centerX, 780 * scale, 'page00 を開く', './page00/', scale);
-    this.createLinkButton(centerX, Math.min(height - 120 * scale, 900 * scale), 'page01 を開く', './page01/', scale);
+    this.createLogo(centerX, centerY, width, height, navY);
+    this.createLinkButtons(centerX, navY, width, height);
   }
 
   /**
    * Codex: トップページ中央にロゴを表示する。
    */
-  private createLogo(x: number, y: number, scaleFactor: number): void {
+  private createLogo(x: number, y: number, width: number, height: number, navY: number): void {
     const logo = this.add.image(x, y, LOGO_TEXTURE_KEY).setOrigin(0.5);
-    const maxWidth = 760 * scaleFactor;
-    const maxHeight = 320 * scaleFactor;
+    const maxWidth = Math.min(width * 0.9, 960);
+    const maxHeight = Math.min(height * 0.82, Math.max(320, (navY - 24) * 2));
     const scale = Math.min(maxWidth / logo.width, maxHeight / logo.height);
 
     logo.setScale(scale);
   }
 
   /**
-   * Codex: ページ遷移用の共通ボタンを配置する。
+   * Codex: ページ遷移用の丸ボタンを横並びで配置する。
    */
-  private createLinkButton(x: number, y: number, label: string, href: string, scale: number): void {
-    const width = 420 * scale;
-    const height = 90 * scale;
-    const background = this.add.rectangle(x, y, width, height, 0x2563eb, 1)
-      .setStrokeStyle(Math.max(2, Math.round(3 * scale)), 0x93c5fd)
-      .setInteractive({ useHandCursor: true });
+  private createLinkButtons(centerX: number, y: number, width: number, height: number): void {
+    const buttonRadius = Math.max(12, Math.round(Math.min(width, height) * 0.018));
+    const gap = Math.max(18, Math.round(buttonRadius * 2.6));
+    const buttonConfigs = [
+      { x: centerX - gap / 2, href: './page00/', fillColor: 0xe5e7eb, strokeColor: 0xf8fafc },
+      { x: centerX + gap / 2, href: './page01/', fillColor: 0x94a3b8, strokeColor: 0xe2e8f0 },
+    ];
 
-    const text = this.add.text(x, y, label, {
-      fontSize: `${Math.round(32 * scale)}px`,
-      color: '#eff6ff',
-    }).setOrigin(0.5);
+    buttonConfigs.forEach(({ x, href, fillColor, strokeColor }) => {
+      const button = this.add.circle(x, y, buttonRadius, fillColor, 1)
+        .setStrokeStyle(Math.max(2, Math.round(buttonRadius * 0.18)), strokeColor, 0.9)
+        .setInteractive({ useHandCursor: true });
 
-    background.on('pointerover', () => {
-      background.setFillStyle(0x1d4ed8, 1);
-    });
+      button.on('pointerover', () => {
+        button.setScale(1.18);
+        button.setAlpha(1);
+      });
 
-    background.on('pointerout', () => {
-      background.setFillStyle(0x2563eb, 1);
-    });
+      button.on('pointerout', () => {
+        button.setScale(1);
+        button.setAlpha(1);
+      });
 
-    background.on('pointerup', () => {
-      text.setScale(1);
-      window.location.href = href;
-    });
+      button.on('pointerdown', () => {
+        button.setScale(0.92);
+      });
 
-    background.on('pointerdown', () => {
-      text.setScale(0.98);
-    });
-
-    background.on('pointerout', () => {
-      text.setScale(1);
+      button.on('pointerup', () => {
+        button.setScale(1.18);
+        window.location.assign(href);
+      });
     });
   }
 }
