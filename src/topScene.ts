@@ -3,6 +3,7 @@ import { createConfig } from './define.ts';
 
 const LOGO_TEXTURE_KEY = 'top-logo';
 const TOP_BACKGROUND_COLOR = '#0A0A0A';
+const LOGO_MAX_DISPLAY_SIZE = 512;
 
 class TopScene extends Phaser.Scene {
   public static readonly key = 'TopScene';
@@ -51,8 +52,8 @@ class TopScene extends Phaser.Scene {
    */
   private createLogo(x: number, y: number, width: number, height: number, navY: number): void {
     const logo = this.add.image(x, y, LOGO_TEXTURE_KEY).setOrigin(0.5);
-    const maxWidth = Math.min(width * 0.9, 960);
-    const maxHeight = Math.min(height * 0.82, Math.max(320, (navY - 24) * 2));
+    const maxWidth = Math.min(width * 0.9, LOGO_MAX_DISPLAY_SIZE);
+    const maxHeight = Math.min(height * 0.82, Math.max(320, (navY - 24) * 2), LOGO_MAX_DISPLAY_SIZE);
     const scale = Math.min(maxWidth / logo.width, maxHeight / logo.height);
 
     logo.setScale(scale);

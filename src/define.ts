@@ -19,11 +19,13 @@ export const createConfig = (scenes: Phaser.Types.Scenes.SceneType[]): Phaser.Ty
   parent: 'game-root',
   backgroundColor: GAME_BACKGROUND_COLOR,
   scale: {
-    // Codex: PC は親要素いっぱいに広げ、モバイルは従来どおり比率を維持する。
-    mode: isMobile ? Phaser.Scale.FIT : Phaser.Scale.RESIZE,
+    // Codex: 設計解像度を上限にして、PC でもキャンバスが不用意に拡大されないようにする。
+    mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
+    autoRound: true,
     width: isMobile ? MOBILE_SCREEN_SIZE.width : SCREEN_SIZE.width,
     height: isMobile ? MOBILE_SCREEN_SIZE.height : SCREEN_SIZE.height,
+    max: isMobile ? MOBILE_SCREEN_SIZE : SCREEN_SIZE,
   },
   scene: scenes,
   fps: {
