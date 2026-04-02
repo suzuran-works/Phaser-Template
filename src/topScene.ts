@@ -17,10 +17,30 @@ class TopScene extends Phaser.Scene {
 
   public create(): void {
     const { width, height } = this.scale;
+
+    this.cameras.main.setBackgroundColor(TOP_BACKGROUND_COLOR);
+    this.renderLayout(width, height);
+    this.scale.on(Phaser.Scale.Events.RESIZE, this.handleResize, this);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.scale.off(Phaser.Scale.Events.RESIZE, this.handleResize, this);
+    });
+  }
+
+  /**
+   * Codex: 画面リサイズ時に現在サイズでレイアウトを引き直す。
+   */
+  private handleResize(gameSize: Phaser.Structs.Size): void {
+    this.renderLayout(gameSize.width, gameSize.height);
+  }
+
+  /**
+   * Codex: 現在の表示サイズに合わせてトップ画面全体を再配置する。
+   */
+  private renderLayout(width: number, height: number): void {
     const scale = Math.min(width / 1080, height / 1080);
     const centerX = width / 2;
 
-    this.cameras.main.setBackgroundColor(TOP_BACKGROUND_COLOR);
+    this.children.removeAll(true);
     this.createLogo(centerX, 380 * scale, scale);
     this.createLinkButton(centerX, 780 * scale, 'page00 を開く', './page00/', scale);
     this.createLinkButton(centerX, Math.min(height - 120 * scale, 900 * scale), 'page01 を開く', './page01/', scale);

@@ -10,11 +10,29 @@ class SummaryScene extends Phaser.Scene {
   }
 
   public create(): void {
-    this.cameras.main.setBackgroundColor(BACKGROUND_COLOR);
-
     const { width, height } = this.scale;
+    this.cameras.main.setBackgroundColor(BACKGROUND_COLOR);
+    this.renderLayout(width, height);
+    this.scale.on(Phaser.Scale.Events.RESIZE, this.handleResize, this);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.scale.off(Phaser.Scale.Events.RESIZE, this.handleResize, this);
+    });
+  }
+
+  /**
+   * Codex: 画面リサイズ時にサマリー画面を再配置する。
+   */
+  private handleResize(gameSize: Phaser.Structs.Size): void {
+    this.renderLayout(gameSize.width, gameSize.height);
+  }
+
+  /**
+   * Codex: 現在の表示サイズに合わせてサマリー画面全体を再描画する。
+   */
+  private renderLayout(width: number, height: number): void {
     const scale = Math.min(width / 1080, height / 1080);
 
+    this.children.removeAll(true);
     this.add.text(width / 2, 160 * scale, TITLE, {
       fontSize: `${Math.round(64 * scale)}px`,
       color: '#f8fafc',
