@@ -1,6 +1,17 @@
 import Phaser from 'phaser';
-import { createConfig } from '../define.ts';
+import { createConfig, DESKTOP_BREAKPOINT } from '../define.ts';
 import { BACKGROUND_COLOR, CARD_COLOR, HIGHLIGHT_COLOR, SUBTITLE, TITLE } from './define.ts';
+
+const DESKTOP_SIDE_GUTTER = 64;
+const MOBILE_SIDE_GUTTER = 20;
+
+const SUMMARY_CARDS = [
+  { title: 'Scene', body: '画面ごとの責務を分けて\n更新範囲を整理する' },
+  { title: 'UI', body: 'パーツごとに切り出して\n拡張しやすく保つ' },
+  { title: 'Logic', body: '状態管理や通信処理を\n別レイヤーへ寄せる' },
+] as const;
+
+type SummaryCard = (typeof SUMMARY_CARDS)[number];
 
 class SummaryScene extends Phaser.Scene {
   public static readonly key = 'Scripts01SummaryScene';
@@ -30,48 +41,110 @@ class SummaryScene extends Phaser.Scene {
    * Codex: 現在の表示サイズに合わせてサマリー画面全体を再描画する。
    */
   private renderLayout(width: number, height: number): void {
-    const scale = Math.min(width / 1080, height / 1080);
+    const isDesktop = width >= DESKTOP_BREAKPOINT;
+    const horizontalPadding = isDesktop ? DESKTOP_SIDE_GUTTER : MOBILE_SIDE_GUTTER;
+    const titleY = isDesktop ? 96 : 72;
+    const titleFontSize = isDesktop
+      ? Math.min(72, Math.max(44, Math.round(width * 0.045)))
+      : Math.min(56, Math.max(38, Math.round(width * 0.085)));
+    const subtitleFontSize = isDesktop
+      ? Math.min(30, Math.max(22, Math.round(width * 0.02)))
+      : Math.min(24, Math.max(18, Math.round(width * 0.04)));
+    const buttonWidth = isDesktop ? 320 : Math.min(width - horizontalPadding * 2, 280);
+    const buttonHeight = isDesktop ? 82 : 72;
+    const buttonY = height - (isDesktop ? 72 : 52);
+    const columns = isDesktop ? 3 : width >= 720 ? 2 : 1;
+    const gap = isDesktop ? 32 : 20;
+    const availableWidth = width - horizontalPadding * 2;
+    const cardWidth = columns === 3
+      ? Math.max(240, Math.floor((availableWidth - gap * 2) / 3))
+      : columns === 2
+        ? Math.min(360, Math.floor((availableWidth - gap) / 2))
+        : Math.min(availableWidth, 420);
+    const cardHeight = isDesktop ? 280 : columns === 2 ? 220 : 170;
+    const rowGap = isDesktop ? 28 : 20;
+    const headerBottom = titleY + titleFontSize + subtitleFontSize + (isDesktop ? 56 : 40);
+    const buttonTop = buttonY - buttonHeight / 2 - (isDesktop ? 48 : 36);
+    const rows: SummaryCard[][] = [];
+
+    for (let index = 0; index < SUMMARY_CARDS.length; index += columns) {
+      rows.push(SUMMARY_CARDS.slice(index, index + columns));
+    }
 
     this.children.removeAll(true);
-    this.add.text(width / 2, 160 * scale, TITLE, {
-      fontSize: `${Math.round(64 * scale)}px`,
+    this.add.text(width / 2, titleY, TITLE, {
+      fontSize: `${titleFontSize}px`,
       color: '#f9fafb',
       fontStyle: 'bold',
     }).setOrigin(0.5);
 
-    this.add.text(width / 2, 240 * scale, SUBTITLE, {
-      fontSize: `${Math.round(28 * scale)}px`,
+    this.add.text(width / 2, titleY + titleFontSize * 0.95, SUBTITLE, {
+      fontSize: `${subtitleFontSize}px`,
       color: '#d1d5db',
     }).setOrigin(0.5);
 
-    const cardWidth = 240 * scale;
-    const cardHeight = 260 * scale;
-    const gap = 36 * scale;
-    const startX = width / 2 - cardWidth - gap / 2;
-    const y = 560 * scale;
+    const totalGridHeight = rows.length * cardHeight + (rows.length - 1) * rowGap;
+    const startY = headerBottom + Math.max(12, (buttonTop - headerBottom - totalGridHeight) / 2) + cardHeight / 2;
 
-    ['Scene', 'UI', 'Logic'].forEach((label, index) => {
-      const x = startX + index * (cardWidth + gap);
-      this.add.rectangle(x, y, cardWidth, cardHeight, CARD_COLOR, 1)
-        .setStrokeStyle(Math.max(2, Math.round(3 * scale)), HIGHLIGHT_COLOR);
-      this.add.text(x, y - 40 * scale, label, {
-        fontSize: `${Math.round(34 * scale)}px`,
-        color: '#ecfdf5',
-        fontStyle: 'bold',
-      }).setOrigin(0.5);
-      this.add.text(x, y + 40 * scale, '分割して育てやすい\n構成のたたき台', {
-        fontSize: `${Math.round(24 * scale)}px`,
-        color: '#d1fae5',
-        align: 'center',
-      }).setOrigin(0.5);
+    rows.forEach((row, rowIndex) => {
+      const rowWidth = row.length * cardWidth + (row.length - 1) * gap;
+      const rowStartX = width / 2 - rowWidth / 2 + cardWidth / 2;
+      const rowY = startY + rowIndex * (cardHeight + rowGap);
+
+      // Codex: 最終行のカード数に合わせて行全体を中央寄せする。
+      row.forEach((card, columnIndex) => {
+        const x = rowStartX + columnIndex * (cardWidth + gap);
+
+        this.createCard(x, rowY, cardWidth, cardHeight, card.title, card.body, isDesktop);
+      });
     });
 
-    const buttonY = Math.min(height - 120 * scale, 900 * scale);
-    const button = this.add.rectangle(width / 2, buttonY, 280 * scale, 80 * scale, HIGHLIGHT_COLOR, 1)
+    this.createBackButton(width / 2, buttonY, buttonWidth, buttonHeight, isDesktop);
+  }
+
+  /**
+   * Codex: カード本文を読みやすい密度で配置する。
+   */
+  private createCard(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    title: string,
+    body: string,
+    isDesktop: boolean,
+  ): void {
+    const titleFontSize = isDesktop
+      ? Math.min(36, Math.max(28, Math.round(width * 0.11)))
+      : Math.min(30, Math.max(24, Math.round(width * 0.08)));
+    const bodyFontSize = isDesktop
+      ? Math.min(24, Math.max(18, Math.round(width * 0.06)))
+      : Math.min(20, Math.max(16, Math.round(width * 0.05)));
+
+    this.add.rectangle(x, y, width, height, CARD_COLOR, 1)
+      .setStrokeStyle(3, HIGHLIGHT_COLOR);
+    this.add.text(x, y - height * 0.18, title, {
+      fontSize: `${titleFontSize}px`,
+      color: '#ecfdf5',
+      fontStyle: 'bold',
+    }).setOrigin(0.5);
+    this.add.text(x, y + height * 0.1, body, {
+      fontSize: `${bodyFontSize}px`,
+      color: '#d1fae5',
+      align: 'center',
+      wordWrap: { width: width - 48 },
+    }).setOrigin(0.5);
+  }
+
+  /**
+   * Codex: 画面幅に合わせて戻るボタンのサイズを切り替える。
+   */
+  private createBackButton(x: number, y: number, width: number, height: number, isDesktop: boolean): void {
+    const button = this.add.rectangle(x, y, width, height, HIGHLIGHT_COLOR, 1)
       .setInteractive({ useHandCursor: true });
 
-    this.add.text(width / 2, buttonY, 'トップへ戻る', {
-      fontSize: `${Math.round(30 * scale)}px`,
+    this.add.text(x, y, 'トップへ戻る', {
+      fontSize: `${isDesktop ? 30 : 24}px`,
       color: '#052e16',
       fontStyle: 'bold',
     }).setOrigin(0.5);
