@@ -20,6 +20,8 @@ concurrency:
 
 jobs:
   deploy:
+    # Codex: コミットメッセージに [skip deploy] がある場合はデプロイを実行しない。
+    if: ${{ !contains(github.event.head_commit.message, '[skip deploy]') }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
