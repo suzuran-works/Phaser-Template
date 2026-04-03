@@ -18,8 +18,6 @@ export const createConfig = (scenes: Phaser.Types.Scenes.SceneType[]): Phaser.Ty
     mode: Phaser.Scale.RESIZE,
     autoCenter: Phaser.Scale.CENTER_BOTH,
     autoRound: true,
-    // Codex: 高DPI端末での文字ぼやけを抑えるため、内部解像度倍率を調整する。
-    zoom: Math.min(window.devicePixelRatio || 1, 2),
     width: SCREEN_SIZE.width,
     height: SCREEN_SIZE.height,
   },
