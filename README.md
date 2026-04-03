@@ -61,6 +61,7 @@ npm run preview
 - `Actions` タブから `Deploy static content to Pages` を手動実行することもできます
 - デプロイをスキップしたい場合は、マージ対象 PR のタイトルに `[skip deploy]` を含めてください（例: `docs: 説明更新 [skip deploy]`）
 - 互換性のため、`main` ブランチへ push するコミットメッセージに `[skip deploy]` を含めた場合もスキップされます
+- 注意: GitHub Actions の実行時間には上限があり、Free プランでは月 2,000 分までです
 
 ### 公開 URL
 
