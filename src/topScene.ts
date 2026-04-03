@@ -65,7 +65,7 @@ class TopScene extends Phaser.Scene {
    * Codex: ページ遷移用の丸ボタンを横並びで配置する。
    */
   private createLinkButtons(centerX: number, y: number, width: number, height: number): void {
-    const buttonRadius = Math.max(10, Math.round(Math.min(width, height) * 0.016));
+    const buttonRadius = Math.max(5, Math.round(Math.min(width, height) * 0.008));
     const gap = Math.max(24, Math.round(buttonRadius * 3.2));
     const buttonConfigs = [
       { x: centerX - gap / 2, href: './page00/' },
