@@ -4,6 +4,7 @@ import { BACKGROUND_COLOR } from './define.ts';
 
 const CORNER_MARKER_RADIUS = 6;
 const CORNER_MARKER_MARGIN = 16;
+const CENTER_MARKER_DISTANCE = 100;
 
 class SummaryScene extends Phaser.Scene {
   public static readonly key = 'Scripts00SummaryScene';
@@ -30,9 +31,12 @@ class SummaryScene extends Phaser.Scene {
   }
 
   /**
-   * Codex: 画面の四隅へ小さい白丸のみを描画する。
+   * Codex: 画面の四隅と中央付近へ小さい白丸を描画する。
    */
   private renderLayout(width: number, height: number): void {
+    const centerX = width / 2;
+    const centerY = height / 2;
+
     this.children.removeAll(true);
 
     const markers = [
@@ -40,6 +44,11 @@ class SummaryScene extends Phaser.Scene {
       { x: width - CORNER_MARKER_MARGIN, y: CORNER_MARKER_MARGIN },
       { x: CORNER_MARKER_MARGIN, y: height - CORNER_MARKER_MARGIN },
       { x: width - CORNER_MARKER_MARGIN, y: height - CORNER_MARKER_MARGIN },
+      { x: centerX, y: centerY },
+      { x: centerX, y: centerY - CENTER_MARKER_DISTANCE },
+      { x: centerX, y: centerY + CENTER_MARKER_DISTANCE },
+      { x: centerX - CENTER_MARKER_DISTANCE, y: centerY },
+      { x: centerX + CENTER_MARKER_DISTANCE, y: centerY },
     ];
 
     markers.forEach(({ x, y }) => {
