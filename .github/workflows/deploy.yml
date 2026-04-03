@@ -30,10 +30,20 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            // Codex: [skip deploy] がコミットメッセージまたは PR タイトルに含まれる場合はデプロイを停止する。
-            const skipMarker = '[skip deploy]';
+            // Codex: skip deploy マーカーの表記ゆれを吸収して判定する正規表現。
+            const skipMarkerPattern = /\[\s*skip deploy\s*\]/i;
             const headMessage = context.payload.head_commit?.message ?? '';
             let prTitle = '';
+            let prNumber = '';
+
+            /**
+             * Codex: skip deploy マーカーを含むか判定する。
+             * @param {string} text 判定対象のテキスト
+             * @returns {boolean} マーカーを含む場合は true
+             */
+            function hasSkipMarker(text) {
+              return skipMarkerPattern.test(text);
+            }
 
             // Codex: main ブランチの push では、HEAD コミットに紐づく PR タイトルを取得する。
             if (context.eventName === 'push' && context.ref === 'refs/heads/main') {
@@ -44,17 +54,21 @@ jobs:
               });
 
               if (prs.data.length > 0) {
-                prTitle = prs.data[0].title ?? '';
+                // Codex: merge commit SHA が一致する PR を優先して選択する。
+                const matchedByMergeCommit = prs.data.find((pr) => pr.merge_commit_sha === context.sha);
+                const selectedPr = matchedByMergeCommit ?? prs.data[0];
+                prTitle = selectedPr.title ?? '';
+                prNumber = selectedPr.number?.toString() ?? '';
               }
             }
 
             // Codex: デバッグ用に判定材料をログ出力する。
             core.info(`Codex: eventName=${context.eventName}, ref=${context.ref}, sha=${context.sha}`);
             core.info(`Codex: headMessage=${JSON.stringify(headMessage)}`);
-            core.info(`Codex: prTitle=${JSON.stringify(prTitle)}`);
-            core.info(`Codex: headMessageHasSkip=${headMessage.includes(skipMarker)}, prTitleHasSkip=${prTitle.includes(skipMarker)}`);
+            core.info(`Codex: prNumber=${JSON.stringify(prNumber)}, prTitle=${JSON.stringify(prTitle)}`);
+            core.info(`Codex: headMessageHasSkip=${hasSkipMarker(headMessage)}, prTitleHasSkip=${hasSkipMarker(prTitle)}`);
 
-            const shouldDeploy = !(headMessage.includes(skipMarker) || prTitle.includes(skipMarker));
+            const shouldDeploy = !(hasSkipMarker(headMessage) || hasSkipMarker(prTitle));
             core.setOutput('should_deploy', shouldDeploy ? 'true' : 'false');
 
             if (shouldDeploy) {
