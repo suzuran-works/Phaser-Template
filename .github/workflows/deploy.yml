@@ -48,6 +48,12 @@ jobs:
               }
             }
 
+            // Codex: デバッグ用に判定材料をログ出力する。
+            core.info(`Codex: eventName=${context.eventName}, ref=${context.ref}, sha=${context.sha}`);
+            core.info(`Codex: headMessage=${JSON.stringify(headMessage)}`);
+            core.info(`Codex: prTitle=${JSON.stringify(prTitle)}`);
+            core.info(`Codex: headMessageHasSkip=${headMessage.includes(skipMarker)}, prTitleHasSkip=${prTitle.includes(skipMarker)}`);
+
             const shouldDeploy = !(headMessage.includes(skipMarker) || prTitle.includes(skipMarker));
             core.setOutput('should_deploy', shouldDeploy ? 'true' : 'false');
 
