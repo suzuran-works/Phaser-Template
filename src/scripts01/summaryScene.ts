@@ -28,12 +28,13 @@ class SummaryScene extends Phaser.Scene {
   }
 
   /**
-   * Codex: 画面中央に「Template」テキストを描画する。
+   * GPT-5.3-Codex: 画面中央にテキストとその文字サイズを描画する。
    */
   private renderCenteredText(width: number, height: number): void {
     this.children.removeAll(true);
-    this.add.text(width / 2, height / 2, CENTER_TEXT, {
-      fontSize: `${Math.min(72, Math.max(40, Math.round(width * 0.08)))}px`,
+    const textSizePx = Math.min(72, Math.max(40, Math.round(width * 0.08)));
+    this.add.text(width / 2, height / 2, `${CENTER_TEXT} ${textSizePx}px`, {
+      fontSize: `${textSizePx}px`,
       color: '#ecfdf5',
       fontStyle: 'bold',
     }).setOrigin(0.5);
