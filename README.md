@@ -59,6 +59,7 @@ npm run preview
 - `main` ブランチへ push すると自動でデプロイされます
 - `v1.0.0` のようなタグを push してもデプロイされます
 - `Actions` タブから `Deploy static content to Pages` を手動実行することもできます
+- デプロイをスキップしたい場合は、`main` ブランチへ push するコミットメッセージに `[skip deploy]` を含めてください（例: `docs: 説明更新 [skip deploy]`）
 
 ### 公開 URL
 
@@ -117,6 +118,11 @@ Scene / UI / Logic の責務分割を意識した構成確認用ページです�
   - `page01` 用のサンプルシーンです。責務分割のイメージを確認できます。
 - `vite.config.ts`
   - `index.html`、`page00/index.html`、`page01/index.html` をエントリにしたマルチページ設定です。
+
+## トップページ画像サイズ仕様
+
+トップページ中央のロゴ画像（`public/textures/suzuran_logo_withname.webp`）は、画面サイズに応じて自動調整されるレスポンシブ表示です。  
+また、リサイズ時にレイアウトを再描画することで、画面サイズ変更時の配置崩れを防いでいます。
 
 ## 拡張の進め方
 
