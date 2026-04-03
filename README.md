@@ -59,7 +59,8 @@ npm run preview
 - `main` ブランチへ push すると自動でデプロイされます
 - `v1.0.0` のようなタグを push してもデプロイされます
 - `Actions` タブから `Deploy static content to Pages` を手動実行することもできます
-- デプロイをスキップしたい場合は、`main` ブランチへ push するコミットメッセージに `[skip deploy]` を含めてください（例: `docs: 説明更新 [skip deploy]`）
+- デプロイをスキップしたい場合は、マージ対象 PR のタイトルに `[skip deploy]` を含めてください（例: `docs: 説明更新 [skip deploy]`）
+- 互換性のため、`main` ブランチへ push するコミットメッセージに `[skip deploy]` を含めた場合もスキップされます
 
 ### 公開 URL
 
