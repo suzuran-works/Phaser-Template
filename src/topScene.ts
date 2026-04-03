@@ -4,6 +4,8 @@ import { createConfig } from './define.ts';
 const LOGO_TEXTURE_KEY = 'top-logo';
 const TOP_BACKGROUND_COLOR = '#0A0A0A';
 const LOGO_MAX_DISPLAY_SIZE = 512;
+const LINK_BUTTON_FILL_COLOR = 0xe5e7eb;
+const LINK_BUTTON_STROKE_COLOR = 0xf8fafc;
 
 class TopScene extends Phaser.Scene {
   public static readonly key = 'TopScene';
@@ -63,16 +65,16 @@ class TopScene extends Phaser.Scene {
    * Codex: ページ遷移用の丸ボタンを横並びで配置する。
    */
   private createLinkButtons(centerX: number, y: number, width: number, height: number): void {
-    const buttonRadius = Math.max(12, Math.round(Math.min(width, height) * 0.018));
-    const gap = Math.max(18, Math.round(buttonRadius * 2.6));
+    const buttonRadius = Math.max(10, Math.round(Math.min(width, height) * 0.016));
+    const gap = Math.max(24, Math.round(buttonRadius * 3.2));
     const buttonConfigs = [
-      { x: centerX - gap / 2, href: './page00/', fillColor: 0xe5e7eb, strokeColor: 0xf8fafc },
-      { x: centerX + gap / 2, href: './page01/', fillColor: 0x94a3b8, strokeColor: 0xe2e8f0 },
+      { x: centerX - gap / 2, href: './page00/' },
+      { x: centerX + gap / 2, href: './page01/' },
     ];
 
-    buttonConfigs.forEach(({ x, href, fillColor, strokeColor }) => {
-      const button = this.add.circle(x, y, buttonRadius, fillColor, 1)
-        .setStrokeStyle(Math.max(2, Math.round(buttonRadius * 0.18)), strokeColor, 0.9)
+    buttonConfigs.forEach(({ x, href }) => {
+      const button = this.add.circle(x, y, buttonRadius, LINK_BUTTON_FILL_COLOR, 1)
+        .setStrokeStyle(Math.max(2, Math.round(buttonRadius * 0.18)), LINK_BUTTON_STROKE_COLOR, 0.9)
         .setInteractive({ useHandCursor: true });
 
       button.on('pointerover', () => {
