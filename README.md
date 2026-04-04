@@ -141,6 +141,32 @@ npm run preview
 - `page01`
 - 共通化したい処理が増えたら、`src/` 配下に共通モジュールを追加して整理してください
 
+## ページ追加スクリプト
+
+新しい `pageXX` の雛形をまとめて作成できます。
+
+```bash
+npm run create:page -- --page 2
+```
+
+- `--page` は `2` / `02` / `page02` の形式で指定できます
+- `--subtitle` を指定すると `src/scriptsXX/define.ts` の `SUBTITLE` を同時に設定します
+- `--dry-run` を指定するとファイルは作成せず、作成予定だけ確認できます
+
+例:
+
+```bash
+npm run create:page -- --page page02 --subtitle "追加ページの説明"
+```
+
+作成されるファイル:
+
+- `pageXX/index.html`
+- `src/scriptsXX/define.ts`
+- `src/scriptsXX/summaryScene.ts`
+
+実行後、標準出力に表示されるガイドに沿って `vite.config.ts` の `rollupOptions.input` へ `pageXX` を追加してください。
+
 ## テンプレート初期化スクリプト（ロゴは変更しない）
 
 複製直後の最低限の置き換え（プロジェクトID・タイトル）をまとめて実行できます。
