@@ -141,6 +141,21 @@ npm run preview
 - `page01`
 - 共通化したい処理が増えたら、`src/` 配下に共通モジュールを追加して整理してください
 
+## テンプレート初期化スクリプト（ロゴは変更しない）
+
+複製直後の最低限の置き換え（プロジェクトID・タイトル）をまとめて実行できます。
+
+```bash
+npm run init:template -- --id my-game --title "My Game"
+```
+
+- 更新対象
+  - `package.json` の `name`
+  - `index.html` の `<title>`
+  - `pageXX/index.html` の `<title>`
+- `public/textures/suzuran_logo_withname.webp` などのロゴ素材は変更しません
+- 変更内容だけ確認したい場合は `--dry-run` を追加してください
+
 ## このテンプレートが向いている用途
 
 - Phaser ベースの小規模プロトタイプ
