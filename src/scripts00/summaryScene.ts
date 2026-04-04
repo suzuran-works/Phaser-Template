@@ -1,12 +1,19 @@
 import Phaser from 'phaser';
 import { createConfig } from '../define.ts';
+import { BaseResponsiveScene } from '../baseResponsiveScene.ts';
 import { BACKGROUND_COLOR } from './define.ts';
 
-const CORNER_MARKER_RADIUS = 6;
-const CORNER_MARKER_MARGIN = 16;
-const CENTER_MARKER_DISTANCE = 100;
+const SUMMARY_LAYOUT_TOKENS = {
+  markerRadiusPx: 6,
+  cornerMarginPx: 16,
+  centerMarkerDistancePx: 100,
+} as const;
 
-class SummaryScene extends Phaser.Scene {
+type SummaryLayout = {
+  markers: Array<{ x: number; y: number }>;
+};
+
+class SummaryScene extends BaseResponsiveScene {
   public static readonly key = 'Scripts00SummaryScene';
 
   public constructor() {
@@ -14,45 +21,40 @@ class SummaryScene extends Phaser.Scene {
   }
 
   public create(): void {
-    const { width, height } = this.scale;
     this.cameras.main.setBackgroundColor(BACKGROUND_COLOR);
-    this.renderLayout(width, height);
-    this.scale.on(Phaser.Scale.Events.RESIZE, this.handleResize, this);
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-      this.scale.off(Phaser.Scale.Events.RESIZE, this.handleResize, this);
-    });
+    this.bindResponsiveLayout();
   }
 
   /**
-   * Codex: リサイズ時に四隅のマーカー位置を再描画する。
+   * Codex: マーカー描画に必要な座標一覧を画面サイズから計算する。
    */
-  private handleResize(gameSize: Phaser.Structs.Size): void {
-    this.renderLayout(gameSize.width, gameSize.height);
-  }
-
-  /**
-   * Codex: 画面の四隅と中央付近へ小さい白丸を描画する。
-   */
-  private renderLayout(width: number, height: number): void {
+  protected computeLayout(width: number, height: number): SummaryLayout {
     const centerX = width / 2;
     const centerY = height / 2;
 
+    return {
+      markers: [
+        { x: SUMMARY_LAYOUT_TOKENS.cornerMarginPx, y: SUMMARY_LAYOUT_TOKENS.cornerMarginPx },
+        { x: width - SUMMARY_LAYOUT_TOKENS.cornerMarginPx, y: SUMMARY_LAYOUT_TOKENS.cornerMarginPx },
+        { x: SUMMARY_LAYOUT_TOKENS.cornerMarginPx, y: height - SUMMARY_LAYOUT_TOKENS.cornerMarginPx },
+        { x: width - SUMMARY_LAYOUT_TOKENS.cornerMarginPx, y: height - SUMMARY_LAYOUT_TOKENS.cornerMarginPx },
+        { x: centerX, y: centerY },
+        { x: centerX, y: centerY - SUMMARY_LAYOUT_TOKENS.centerMarkerDistancePx },
+        { x: centerX, y: centerY + SUMMARY_LAYOUT_TOKENS.centerMarkerDistancePx },
+        { x: centerX - SUMMARY_LAYOUT_TOKENS.centerMarkerDistancePx, y: centerY },
+        { x: centerX + SUMMARY_LAYOUT_TOKENS.centerMarkerDistancePx, y: centerY },
+      ],
+    };
+  }
+
+  /**
+   * Codex: 算出済み座標へ小さい白丸マーカーを描画する。
+   */
+  protected renderLayout(layout: SummaryLayout): void {
     this.children.removeAll(true);
 
-    const markers = [
-      { x: CORNER_MARKER_MARGIN, y: CORNER_MARKER_MARGIN },
-      { x: width - CORNER_MARKER_MARGIN, y: CORNER_MARKER_MARGIN },
-      { x: CORNER_MARKER_MARGIN, y: height - CORNER_MARKER_MARGIN },
-      { x: width - CORNER_MARKER_MARGIN, y: height - CORNER_MARKER_MARGIN },
-      { x: centerX, y: centerY },
-      { x: centerX, y: centerY - CENTER_MARKER_DISTANCE },
-      { x: centerX, y: centerY + CENTER_MARKER_DISTANCE },
-      { x: centerX - CENTER_MARKER_DISTANCE, y: centerY },
-      { x: centerX + CENTER_MARKER_DISTANCE, y: centerY },
-    ];
-
-    markers.forEach(({ x, y }) => {
-      this.add.circle(x, y, CORNER_MARKER_RADIUS, 0xffffff, 1);
+    layout.markers.forEach(({ x, y }) => {
+      this.add.circle(x, y, SUMMARY_LAYOUT_TOKENS.markerRadiusPx, 0xffffff, 1);
     });
   }
 }
