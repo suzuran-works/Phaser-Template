@@ -1,13 +1,46 @@
 import Phaser from 'phaser';
 import { createConfig } from './define.ts';
+import { BaseResponsiveScene } from './baseResponsiveScene.ts';
 
 const LOGO_TEXTURE_KEY = 'top-logo';
 const TOP_BACKGROUND_COLOR = '#0A0A0A';
-const LOGO_MAX_DISPLAY_SIZE = 512;
 const LINK_BUTTON_FILL_COLOR = 0xe5e7eb;
 const LINK_BUTTON_STROKE_COLOR = 0xf8fafc;
 
-class TopScene extends Phaser.Scene {
+const TOP_LAYOUT_TOKENS = {
+  logo: {
+    maxDisplaySizePx: 512,
+    widthRatio: 0.9,
+    heightRatio: 0.82,
+    minHeightPx: 320,
+    navGapPx: 24,
+  },
+  nav: {
+    minBottomMarginPx: 72,
+    bottomMarginRatio: 0.08,
+  },
+  button: {
+    radiusRatio: 0.008,
+    minRadiusPx: 5,
+    minGapPx: 24,
+    gapRadiusMultiplier: 3.2,
+    strokeMinPx: 2,
+    strokeRadiusRatio: 0.18,
+    hoverScale: 1.18,
+    pressScale: 0.92,
+  },
+} as const;
+
+type TopLayout = {
+  logo: {
+    x: number;
+    y: number;
+    scale: number;
+  };
+  buttons: Array<{ x: number; y: number; href: string; radius: number; strokeWidth: number }>;
+};
+
+class TopScene extends BaseResponsiveScene {
   public static readonly key = 'TopScene';
 
   public constructor() {
@@ -19,66 +52,57 @@ class TopScene extends Phaser.Scene {
   }
 
   public create(): void {
-    const { width, height } = this.scale;
-
     this.cameras.main.setBackgroundColor(TOP_BACKGROUND_COLOR);
-    this.renderLayout(width, height);
-    this.scale.on(Phaser.Scale.Events.RESIZE, this.handleResize, this);
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-      this.scale.off(Phaser.Scale.Events.RESIZE, this.handleResize, this);
-    });
+    this.bindResponsiveLayout();
   }
 
   /**
-   * Codex: 画面リサイズ時に現在サイズでレイアウトを引き直す。
+   * Codex: 画面サイズからロゴと遷移ボタンの配置情報を計算する。
    */
-  private handleResize(gameSize: Phaser.Structs.Size): void {
-    this.renderLayout(gameSize.width, gameSize.height);
-  }
-
-  /**
-   * Codex: 現在の表示サイズに合わせてトップ画面全体を再配置する。
-   */
-  private renderLayout(width: number, height: number): void {
+  protected computeLayout(width: number, height: number): TopLayout {
     const centerX = width / 2;
     const centerY = height / 2;
-    const navY = height - Math.max(72, height * 0.08);
+    const navY = height - Math.max(TOP_LAYOUT_TOKENS.nav.minBottomMarginPx, height * TOP_LAYOUT_TOKENS.nav.bottomMarginRatio);
 
+    const buttonRadius = Math.max(
+      TOP_LAYOUT_TOKENS.button.minRadiusPx,
+      Math.round(Math.min(width, height) * TOP_LAYOUT_TOKENS.button.radiusRatio),
+    );
+    const buttonGap = Math.max(
+      TOP_LAYOUT_TOKENS.button.minGapPx,
+      Math.round(buttonRadius * TOP_LAYOUT_TOKENS.button.gapRadiusMultiplier),
+    );
+
+    const logoScale = this.computeLogoScale(width, height, navY);
+    const strokeWidth = Math.max(
+      TOP_LAYOUT_TOKENS.button.strokeMinPx,
+      Math.round(buttonRadius * TOP_LAYOUT_TOKENS.button.strokeRadiusRatio),
+    );
+
+    return {
+      logo: { x: centerX, y: centerY, scale: logoScale },
+      buttons: [
+        { x: centerX - buttonGap / 2, y: navY, href: './page00/', radius: buttonRadius, strokeWidth },
+        { x: centerX + buttonGap / 2, y: navY, href: './page01/', radius: buttonRadius, strokeWidth },
+      ],
+    };
+  }
+
+  /**
+   * Codex: 計算済みレイアウト情報を使ってトップ画面を再描画する。
+   */
+  protected renderLayout(layout: TopLayout): void {
     this.children.removeAll(true);
-    this.createLogo(centerX, centerY, width, height, navY);
-    this.createLinkButtons(centerX, navY, width, height);
-  }
 
-  /**
-   * Codex: トップページ中央にロゴを表示する。
-   */
-  private createLogo(x: number, y: number, width: number, height: number, navY: number): void {
-    const logo = this.add.image(x, y, LOGO_TEXTURE_KEY).setOrigin(0.5);
-    const maxWidth = Math.min(width * 0.9, LOGO_MAX_DISPLAY_SIZE);
-    const maxHeight = Math.min(height * 0.82, Math.max(320, (navY - 24) * 2), LOGO_MAX_DISPLAY_SIZE);
-    const scale = Math.min(maxWidth / logo.width, maxHeight / logo.height);
+    this.add.image(layout.logo.x, layout.logo.y, LOGO_TEXTURE_KEY).setOrigin(0.5).setScale(layout.logo.scale);
 
-    logo.setScale(scale);
-  }
-
-  /**
-   * Codex: ページ遷移用の丸ボタンを横並びで配置する。
-   */
-  private createLinkButtons(centerX: number, y: number, width: number, height: number): void {
-    const buttonRadius = Math.max(5, Math.round(Math.min(width, height) * 0.008));
-    const gap = Math.max(24, Math.round(buttonRadius * 3.2));
-    const buttonConfigs = [
-      { x: centerX - gap / 2, href: './page00/' },
-      { x: centerX + gap / 2, href: './page01/' },
-    ];
-
-    buttonConfigs.forEach(({ x, href }) => {
-      const button = this.add.circle(x, y, buttonRadius, LINK_BUTTON_FILL_COLOR, 1)
-        .setStrokeStyle(Math.max(2, Math.round(buttonRadius * 0.18)), LINK_BUTTON_STROKE_COLOR, 0.9)
+    layout.buttons.forEach(({ x, y, href, radius, strokeWidth }) => {
+      const button = this.add.circle(x, y, radius, LINK_BUTTON_FILL_COLOR, 1)
+        .setStrokeStyle(strokeWidth, LINK_BUTTON_STROKE_COLOR, 0.9)
         .setInteractive({ useHandCursor: true });
 
       button.on('pointerover', () => {
-        button.setScale(1.18);
+        button.setScale(TOP_LAYOUT_TOKENS.button.hoverScale);
         button.setAlpha(1);
       });
 
@@ -88,14 +112,30 @@ class TopScene extends Phaser.Scene {
       });
 
       button.on('pointerdown', () => {
-        button.setScale(0.92);
+        button.setScale(TOP_LAYOUT_TOKENS.button.pressScale);
       });
 
       button.on('pointerup', () => {
-        button.setScale(1.18);
+        button.setScale(TOP_LAYOUT_TOKENS.button.hoverScale);
         window.location.assign(href);
       });
     });
+  }
+
+  /**
+   * Codex: ロゴテクスチャ比率を維持した最大スケール値を算出する。
+   */
+  private computeLogoScale(width: number, height: number, navY: number): number {
+    const texture = this.textures.get(LOGO_TEXTURE_KEY).getSourceImage() as { width: number; height: number };
+
+    const maxWidth = Math.min(width * TOP_LAYOUT_TOKENS.logo.widthRatio, TOP_LAYOUT_TOKENS.logo.maxDisplaySizePx);
+    const maxHeight = Math.min(
+      height * TOP_LAYOUT_TOKENS.logo.heightRatio,
+      Math.max(TOP_LAYOUT_TOKENS.logo.minHeightPx, (navY - TOP_LAYOUT_TOKENS.logo.navGapPx) * 2),
+      TOP_LAYOUT_TOKENS.logo.maxDisplaySizePx,
+    );
+
+    return Math.min(maxWidth / texture.width, maxHeight / texture.height);
   }
 }
 
