@@ -110,6 +110,21 @@ function updateHtmlTitle(htmlPath, title, dryRun) {
 }
 
 /**
+ * Codex: README の見出しと GitHub Pages 用 URL を初期化内容へ合わせる。
+ */
+function updateReadme(readmePath, packageName, title, dryRun) {
+  const currentContent = readTextFile(readmePath);
+  let nextContent = currentContent.replace(/^# .+$/m, `# ${title}`);
+
+  nextContent = nextContent.replace(
+    /(https:\/\/[^/\s`]+\.github\.io\/)[^/\s`]+(\/(?:page\d{2}\/)?)/g,
+    `$1${packageName}$2`,
+  );
+
+  return writeTextFile(readmePath, nextContent, dryRun);
+}
+
+/**
  * Codex: pageXX ディレクトリ配下の index.html 一覧を返す。
  */
 function listPageHtmlPaths(repoRoot) {
@@ -157,6 +172,11 @@ function main() {
   const topIndexPath = path.join(REPO_ROOT, 'index.html');
   if (updateHtmlTitle(topIndexPath, title, dryRun)) {
     changedFiles.push(topIndexPath);
+  }
+
+  const readmePath = path.join(REPO_ROOT, 'README.md');
+  if (updateReadme(readmePath, packageName, title, dryRun)) {
+    changedFiles.push(readmePath);
   }
 
   const pageHtmlPaths = listPageHtmlPaths(REPO_ROOT);

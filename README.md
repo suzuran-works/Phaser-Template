@@ -178,6 +178,8 @@ npm run init:template -- --id my-game --title "My Game"
 - 更新対象
   - `package.json` の `name`
   - `index.html` の `<title>`
+  - `README.md` の先頭見出し
+  - `README.md` の GitHub Pages 公開 URL
   - `pageXX/index.html` の `<title>`
 - `public/textures/suzuran_logo_withname.webp` などのロゴ素材は変更しません
 - 変更内容だけ確認したい場合は `--dry-run` を追加してください
